@@ -1,42 +1,7 @@
 <!doctype html>
-<html lang="vi">
-<head>
-  <meta charset="UTF-8" />
-  <title>Dabook News</title>
-  <link rel="stylesheet" href="reader.css" />
-  <link rel="stylesheet" href="theme.css">
-
-</head>
-
-<body>
-
-  <h1>📰 Dabook – Tin tức xanh</h1>
-
-  <div id="postContainer" class="posts"></div>
-
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const posts = JSON.parse(localStorage.getItem("localPosts") || "[]")
-        .filter(p => p.status === "published");
-
-      const box = document.getElementById("postContainer");
-      box.innerHTML = "";
-
-      posts.forEach(p => {
-        const div = document.createElement("div");
-        div.className = "post-card";
-
-        div.innerHTML = `
-          <img src="${p.thumbnail}" class="thumb">
-          <h2>${p.title}</h2>
-          <p>${p.sapo}</p>
-          <button onclick="location.href='reader.html?id=${p.id}'">Đọc bài</button>
-        `;
-
-        box.appendChild(div);
-      });
-    });
-  </script>
-
-</body>
+<html>
+  <head>
+    <meta http-equiv="refresh" content="0; URL='./login/index.html'" />
+  </head>
+  <body></body>
 </html>
