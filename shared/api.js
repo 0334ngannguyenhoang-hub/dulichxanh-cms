@@ -1,5 +1,5 @@
 // api.js
-const API_BASE = "https://dulichxanh-backend.onrender.com";
+const API_BASE = "https://dulichxanh-cms.onrender.com";
 
 export function getToken() {
   return localStorage.getItem("token");
