@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Soạn bài – CMS TCĐT Du lịch Xanh</title>
+    <link rel="stylesheet" href="../editor/editor.css">
+    
+    <!-- IMPORTMAP TIPTAP -->
+    <script type="importmap">
+    {
+      "imports": {
+        "@tiptap/core": "https://esm.sh/@tiptap/core@2.3.2",
+        "@tiptap/starter-kit": "https://esm.sh/@tiptap/starter-kit@2.3.2",
+        "@tiptap/extension-image": "https://esm.sh/@tiptap/extension-image@2.3.2",
+        "@tiptap/extension-text-align": "https://esm.sh/@tiptap/extension-text-align@2.3.2",
+        "@tiptap/extension-link": "https://esm.sh/@tiptap/extension-link@2.3.2",
+        "@tiptap/extension-blockquote": "https://esm.sh/@tiptap/extension-blockquote@2.3.2",
+        "@tiptap/extension-youtube": "https://esm.sh/@tiptap/extension-youtube@2.3.2",
+        "@tiptap/extension-underline": "https://esm.sh/@tiptap/extension-underline@2.3.2"
+      }
+    }
+    </script>
+  </head>
+
+  <body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar">
+      <div class="nav-left">
+        <span class="logo">CMS TCĐT Du lịch Xanh</span>
+      </div>
+
+      <div class="nav-links">
+        <a href="../editor/editor.html">✏️ Editor</a>
+        <a href="../draft/draft.html">📄 Draft</a>
+        <a href="../dashboard/dashboard.html">📊 Dashboard</a>
+      </div>
+    </nav>
+
+    <!-- EDITOR UI -->
+    <h1>✏️ Soạn thảo bài viết </h1>
+
+    <label>Tiêu đề</label>
+    <input id="title" class="input" placeholder="Tiêu đề bài viết...">
+
+    <label>Sapo</label>
+    <input id="sapo" class="input" placeholder="Sapo tóm tắt...">
+
+    <label>Phóng viên / Tác giả</label>
+    <input id="author" class="input" placeholder="Nhập tên phóng viên...">
+
+    <label>Thumbnail</label>
+    <div style="display:flex; gap:10px;">
+      <input id="thumbnail" class="input" placeholder="Dán URL ảnh thumbnail...">
+      <button onclick="document.getElementById('thumbInput').click()">Upload</button>
+    </div>
+    <input id="thumbInput" type="file" accept="image/*" hidden>
+
+    <!-- CATEGORY -->
+    <label>Chuyên mục</label>
+    <div id="catBox" class="cat-box">
+      <div class="cat-header">Chọn chuyên mục ▼</div>
+
+      <div class="cat-list">
+        <h4>1. Tin tức</h4>
+        <label><input type="checkbox" value="tin-trong-nuoc"> Trong nước</label>
+        <label><input type="checkbox" value="tin-the-gioi"> Thế giới</label>
+
+        <h4>2. Trải nghiệm xanh</h4>
+        <label><input type="checkbox" value="am-thuc"> Ẩm thực</label>
+        <label><input type="checkbox" value="diem-den"> Điểm đến</label>
+        <label><input type="checkbox" value="ba-lo-du-lich"> Ba lô du lịch</label>
+        <label><input type="checkbox" value="di-chuyen-xanh"> Di chuyển xanh</label>
+
+        <h4>3. Gương mặt sinh thái</h4>
+        <label><input type="checkbox" value="nguoi-dan-xanh"> Người dẫn đường xanh</label>
+        <label><input type="checkbox" value="su-gia-van-hoa"> Sứ giả văn hóa</label>
+        <label><input type="checkbox" value="doanh-nghiep-xanh"> Doanh nghiệp xanh</label>
+
+        <h4>4. Góc học thuật</h4>
+        <label><input type="checkbox" value="cong-nghe-xanh"> Công nghệ & Giải pháp xanh</label>
+        <label><input type="checkbox" value="tri-thuc-ben-vung"> Tri thức bền vững</label>
+        <label><input type="checkbox" value="du-lieu-chinh-sach"> Dữ liệu & Chính sách Xanh</label>
+
+        <h4>5. Multimedia</h4>
+        <label><input type="checkbox" value="anh"> Ảnh</label>
+        <label><input type="checkbox" value="video"> Video</label>
+        <label><input type="checkbox" value="infographic"> Infographic</label>
+        <label><input type="checkbox" value="emagazine"> E-magazine</label>
+      </div>
+    </div>
+
+    <label>Hashtags</label>
+    <input id="tags" class="input" placeholder="du-lich, xanh, tin-tuc">
+
+    <!-- TOOLBAR -->
+    <div class="toolbar toolbar-sticky">
+      <button data-action="bold">Bold</button>
+      <button data-action="italic">Italic</button>
+      <button data-action="underline">U</button>
+      <button data-action="h2">H2</button>
+      <button data-action="h3">H3</button>
+      <button data-action="bullet">• List</button>
+      <button data-action="ordered">1. List</button>
+      <button data-action="align-left">⬅</button>
+      <button data-action="align-center">⬆</button>
+      <button data-action="align-right">➡</button>
+      <button data-action="align-justify">⭤</button>
+      <button data-action="image">🖼 Ảnh</button>
+      <button data-action="blockquote">❝ Blockquote</button>
+      <button data-action="youtube">▶ YouTube</button>
+    </div>
+
+    <input id="imageInput" type="file" accept="image/*" hidden>
+
+    <!--  EMAGAZINE INPUTS (CANVA WEBSITE) -->
+    <div id="emagazineBox" style="display:none; margin:20px 0;">
+      <label>Link trang Canva (ví dụ https://yourname.my.canva.site/xxx)</label>
+      <input id="emagPage" class="input" placeholder="Dán link Canva Website (my.canva.site) ở đây">
+      <small style="color:#666">Nhập link CANVA WEBSITE (không phải link chia sẻ). Ví dụ: https://yourname.my.canva.site/ten-bai</small>
+    </div>
+
+    <div id="editor"></div>
+    <div id="statusBar" class="status-bar">
+      Đang tải...
+    </div>
+
+    <div class="preview">
+      <div class="preview-container">
+        <img id="preview-thumbnail" alt="Thumbnail" class="preview-thumbnail"/>
+        <h1 class="preview-title" id="preview-title"></h1>
+        <p class="preview-sapo" id="preview-sapo"></p>
+        <p class="preview-author" id="preview-author"></p>
+        <article id="preview-content" class="preview-article"></article>
+      </div>
+    </div>
+
+    <button id="saveBtn" class="save">💾 Lưu bài</button>
+
+    <!-- SCRIPT (đặt đúng vị trí!) -->
+    <script type="module" src="../shared/api.js"></script>
+    <script type="module" src="../shared/navbar.js"></script>
+    <script type="module" src="editor.js"></script>
+
+  </body>
+</html>

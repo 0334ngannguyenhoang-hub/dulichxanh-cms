@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>📄 Bản nháp – CMS TCĐT Du lịch Xanh</title>
+  <script type="importmap">
+{
+  "imports": {
+    "@tiptap/core": "https://esm.sh/@tiptap/core@2.3.2",
+    "@tiptap/starter-kit": "https://esm.sh/@tiptap/starter-kit@2.3.2",
+    "@tiptap/extension-image": "https://esm.sh/@tiptap/extension-image@2.3.2",
+    "@tiptap/extension-text-align": "https://esm.sh/@tiptap/extension-text-align@2.3.2",
+    "@tiptap/extension-link": "https://esm.sh/@tiptap/extension-link@2.3.2",
+    "@tiptap/extension-blockquote": "https://esm.sh/@tiptap/extension-blockquote@2.3.2",
+    "@tiptap/extension-youtube": "https://esm.sh/@tiptap/extension-youtube@2.3.2",
+    "@tiptap/extension-underline": "https://esm.sh/@tiptap/extension-underline@2.3.2"
+  }
+}
+</script>
+
+  <link rel="stylesheet" href="../editor/editor.css">
+  <link rel="stylesheet" href="../draft/draft.css">
+  
+</head>
+
+<body>
+
+  <!-- ========= NAVBAR ========= -->
+  <nav class="navbar">
+    <div class="nav-left">
+      <span class="logo">CMS TCĐT Du lịch Xanh</span>
+    </div>
+
+   <div class="nav-links">
+      <a href="../editor/editor.html">✏️ Editor</a>
+      <a href="../draft/draft.html">📄 Draft</a>
+      <a href="../dashboard/dashboard.html">📊 Dashboard</a>
+    </div>
+  </nav>
+
+  <h1>📄 Danh sách bài nháp</h1>
+
+  <!-- ================================================
+        BỘ LỌC
+  ================================================= -->
+  <div class="filter-box">
+    <input id="filter-author" placeholder="Lọc theo tác giả...">
+    <input id="filter-tag" placeholder="Lọc theo hashtag...">
+
+  <select id="filter-category">
+  <option value="">-- Lọc theo chuyên mục --</option>
+
+  <!-- 1. Tin tức -->
+  <option value="tin-tuc" data-parent="true">— Tin tức —</option>
+  <option value="tin-trong-nuoc">Trong nước</option>
+  <option value="tin-the-gioi">Thế giới</option>
+
+  <!-- 2. Trải nghiệm xanh -->
+  <option value="trai-nghiem-xanh" data-parent="true">— Trải nghiệm xanh —</option>
+  <option value="am-thuc">Ẩm thực</option>
+  <option value="diem-den">Điểm đến</option>
+  <option value="ba-lo-du-lich">Ba lô du lịch</option>
+  <option value="di-chuyen-xanh">Di chuyển xanh</option>
+
+  <!-- 3. Gương mặt sinh thái -->
+  <option value="guong-mat-sinh-thai" data-parent="true">— Gương mặt sinh thái —</option>
+  <option value="nguoi-dan-xanh">Người dẫn đường xanh</option>
+  <option value="su-gia-van-hoa">Sứ giả văn hóa</option>
+  <option value="doanh-nghiep-xanh">Doanh nghiệp xanh</option>
+
+  <!-- 4. Góc học thuật -->
+  <option value="goc-hoc-thuat" data-parent="true">— Góc học thuật —</option>
+  <option value="cong-nghe-xanh">Công nghệ & Giải pháp xanh</option>
+  <option value="tri-thuc-ben-vung">Tri thức bền vững</option>
+  <option value="du-lieu-chinh-sach">Dữ liệu & Chính sách Xanh</option>
+
+  <!-- 5. Multimedia -->
+  <option value="multimedia" data-parent="true">— Multimedia —</option>
+  <option value="anh">Ảnh</option>
+  <option value="video">Video</option>
+  <option value="infographic">Infographic</option>
+  <option value="emagazine">E-magazine</option>
+</select>
+
+
+    <button id="clearFilters">Xoá lọc</button>
+  </div>
+
+  <div style="margin: 12px 0; display: flex; gap: 12px;">
+  <button id="bulkPublishDraft" class="publish-btn">📢 Duyệt hàng loạt</button>
+  <button id="bulkDeleteDraft" class="delete-btn">🗑 Xoá hàng loạt</button>
+</div>
+
+  <!-- ================================================
+        DANH SÁCH BÀI NHÁP
+  ================================================= -->
+  <table class="draft-table">
+    <thead>
+      <tr>
+        <th><input type="checkbox" id="selectAllDraft"></th>
+        <th>Tiêu đề</th>
+        <th>Tác giả</th>
+        <th>Chuyên mục</th>
+        <th>Ngày tạo</th>
+        <th>Hành động</th>
+      </tr>
+    </thead>
+    <tbody id="draftList"></tbody>
+  </table>
+
+  <!-- ================================================
+        POPUP CHỈNH SỬA BÀI NHÁP
+  ================================================= -->
+  <div id="editPopup" class="popup hidden">
+    <div class="popup-content">
+
+      <h2>✏️ Chỉnh sửa bài nháp</h2>
+
+      <label>Tiêu đề</label>
+      <input id="edit-title" class="input">
+
+      <label>Sapo</label>
+      <input id="edit-sapo" class="input">
+
+      <label>Tác giả</label>
+      <input id="edit-author" class="input">
+
+      <label>Thumbnail</label>
+      <input id="edit-thumbnail" class="input">
+
+      <label>Hashtags</label>
+      <input id="edit-tags" class="input">
+
+    <label>Nội dung</label>
+
+    <!-- TOOLBAR GIỐNG EDITOR -->
+   <div class="toolbar toolbar-sticky" id="draft-toolbar">
+      <button data-action="bold">Bold</button>
+      <button data-action="italic">Italic</button>
+      <button data-action="underline">U</button>
+      <button data-action="h2">H2</button>
+      <button data-action="h3">H3</button>
+      <button data-action="bullet">• List</button>
+      <button data-action="ordered">1. List</button>
+      <button data-action="align-left">⬅</button>
+      <button data-action="align-center">⬆</button>
+      <button data-action="align-right">➡</button>
+      <button data-action="align-justify">⭤</button>
+      <button data-action="image">🖼 Ảnh</button>
+      <button data-action="blockquote">❝ Blockquote</button>
+      <button data-action="youtube">▶ YouTube</button>
+    </div>
+
+    <input id="draft-image-input" type="file" accept="image/*" hidden>
+
+    <div id="edit-editor"></div>
+
+
+      <div class="popup-actions">
+        <button id="btnPublish">📢 Duyệt bài</button>
+        <button id="btnSaveEdit">💾 Lưu</button>
+        <button id="btnCloseEdit">Đóng</button>
+      </div>
+
+    </div>
+  </div>
+
+<script type="module" src="../shared/api.js"></script>
+<script type="module" src="draft.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <title>📊 Dashboard –  CMS TCĐT Du lịch Xanh</title>
+  <link rel="stylesheet" href="../editor/editor.css">
+  
+  <style>
+    .stats-box {
+  display: flex;
+  gap: 20px;
+  margin: 20px 0;
+}
+
+.stat {
+  flex: 1;
+  background: white;
+  padding: 20px;
+  border-radius: 14px;
+  border: 1px solid #cddccd;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.stat h2 {
+  margin: 0;
+  font-size: 32px;
+  color: #0b8457;
+}
+
+.stat p {
+  margin-top: 8px;
+  font-size: 14px;
+  color: #666;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 14px;
+  overflow: hidden;
+  margin-top: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+th, td {
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+}
+
+th {
+  background: #e8f6ed;
+  font-weight: 600;
+  color: #0b8457;
+}
+
+.status-draft { color: #d35400; font-weight: 600; }
+.status-published { color: #0b8457; font-weight: 600; }
+
+.btn-view, .btn-delete, .btn-undo {
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  border: none;
+  color: white;
+}
+
+.btn-view { background: #3498db; }
+.btn-delete { background: #c0392b; }
+.btn-undo { background: #f1c40f; color: black; }
+
+/* POPUP VIEW */
+.popup {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 3000;
+}
+
+.popup.hidden {
+  display: none;
+}
+
+.popup-content {
+  background: white;
+  padding: 24px;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 900px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+}
+
+/* Images */
+#article-content img {
+  max-width: 80%;
+  display: block;
+  margin: 20px auto;
+  border-radius: 12px;
+}
+
+#article-content iframe {
+  width: 80% !important;
+  aspect-ratio: 16/9;
+  display: block;
+  margin: 20px auto;
+  border-radius: 12px;
+}
+
+/* NAVIGATION BAR */
+.navbar {
+  background: #ffffff;
+  border-bottom: 1px solid #d0e2d0;
+  padding: 14px 20px;
+  margin-bottom: 20px;
+  border-radius: 0 0 14px 14px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.logo {
+  font-weight: 700;
+  font-size: 18px;
+  color: #0b8457;
+}
+
+.nav-links a {
+  text-decoration: none;
+  font-weight: 500;
+  color: #444;
+  padding: 8px 12px;
+  border-radius: 8px;
+  transition: 0.2s;
+}
+
+.nav-links a:hover {
+  background: #e8f6ed;
+}
+
+.nav-links a.active {
+  background: #0b8457;
+  color: white !important;
+}
+
+.btn-close {
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  background: #0c99f7; /* xám nhẹ */
+  border: none;
+  color: white;
+}
+.btn-close:hover {
+  background: #95a5a6;
+}
+
+
+  </style>
+</head>
+
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="nav-left">
+      <span class="logo">Dabook CMS</span>
+    </div>
+
+    <div class="nav-links">
+      <a href="../editor/editor.html">✏️ Editor</a>
+      <a href="../draft/draft.html">📄 Draft</a>
+      <a href="../dashboard/dashboard.html">📊 Dashboard</a>
+    </div>
+  </nav>
+
+  <h1>📊 Dashboard quản trị</h1>
+
+  <div class="stats-box">
+    <div class="stat">
+      <h2 id="totalPosts">0</h2>
+      <p>Tổng số bài</p>
+    </div>
+    <div class="stat">
+      <h2 id="draftPosts">0</h2>
+      <p>Bài đang chờ duyệt</p>
+    </div>
+    <div class="stat">
+      <h2 id="publishedPosts">0</h2>
+      <p>Bài đã xuất bản</p>
+    </div>
+  </div>
+
+  <div class="filter-box" style="display:flex; gap:12px; margin-bottom:20px;">
+  <input id="filter-author" placeholder="Lọc theo tác giả...">
+  <input id="filter-tag" placeholder="Lọc theo hashtag...">
+
+  <select id="filter-category">
+    <option value="">-- Lọc theo chuyên mục --</option>
+
+    <!-- 1. Tin tức -->
+    <option value="tin-tuc" data-parent="true">— Tin tức —</option>
+    <option value="tin-trong-nuoc">Trong nước</option>
+    <option value="tin-the-gioi">Thế giới</option>
+
+    <!-- 2. Trải nghiệm xanh -->
+    <option value="trai-nghiem-xanh" data-parent="true">— Trải nghiệm xanh —</option>
+    <option value="am-thuc">Ẩm thực</option>
+    <option value="diem-den">Điểm đến</option>
+    <option value="ba-lo-du-lich">Ba lô du lịch</option>
+    <option value="di-chuyen-xanh">Di chuyển xanh</option>
+
+    <!-- 3. Gương mặt sinh thái -->
+    <option value="guong-mat-sinh-thai" data-parent="true">— Gương mặt sinh thái —</option>
+    <option value="nguoi-dan-xanh">Người dẫn đường xanh</option>
+    <option value="su-gia-van-hoa">Sứ giả văn hóa</option>
+    <option value="doanh-nghiep-xanh">Doanh nghiệp xanh</option>
+
+    <!-- 4. Góc học thuật -->
+    <option value="goc-hoc-thuat" data-parent="true">— Góc học thuật —</option>
+    <option value="cong-nghe-xanh">Công nghệ & Giải pháp xanh</option>
+    <option value="tri-thuc-ben-vung">Tri thức bền vững</option>
+    <option value="du-lieu-chinh-sach">Dữ liệu & Chính sách Xanh</option>
+
+    <!-- 5. Multimedia -->
+    <option value="multimedia" data-parent="true">— Multimedia —</option>
+    <option value="anh">Ảnh</option>
+    <option value="video">Video</option>
+    <option value="infographic">Infographic</option>
+    <option value="emagazine">E-magazine</option>
+  </select>
+
+  <button id="clearFilters">Xoá lọc</button>
+</div>
+
+
+  <div style="margin: 10px 0; display: flex; gap: 10px;">
+   <button id="bulkUnpublish" class="btn-undo">↩ Gỡ hàng loạt</button>
+    <button id="bulkDelete" class="btn-delete">🗑 Xoá hàng loạt</button>
+</div>
+
+  <table>
+    <thead>
+      <tr>
+         <th><input type="checkbox" id="selectAll"></th>
+        <th>Tiêu đề</th>
+        <th>Tác giả</th>
+        <th>Chuyên mục</th>
+        <th>Trạng thái</th>
+        <th>Ngày tạo</th>
+        <th>Hành động</th>
+      </tr>
+    </thead>
+    <tbody id="postList"></tbody>
+  </table>
+
+  <!-- POPUP XEM BÀI -->
+  <div id="viewPopup" class="popup hidden">
+    <div class="popup-content">
+      <h2 id="view-title"></h2>
+      <p><i id="view-author"></i></p>
+      <div id="article-content"></div>
+
+      <div class="popup-actions" style="margin-top:20px; text-align:right;">
+        <button class="btn-close" onclick="closeView()">Đóng</button>
+      </div>
+    </div>
+  </div>
+
+<script type="module" src="../shared/api.js"></script>
+<script type="module" src="dashboard.js"></script>
+
+</body>
+</html>

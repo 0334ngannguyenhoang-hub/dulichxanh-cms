@@ -1,0 +1,104 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Segoe UI", sans-serif;
+}
+
+body {
+  height: 100vh;
+  display: flex;
+  overflow: hidden;
+}
+
+/* Bên trái: hình minh họa du lịch xanh */
+.left {
+  width: 55%;
+  background: url("travel-green.jpg") center/cover no-repeat;
+  animation: slideLeft 0.8s ease;
+}
+
+/* Bên phải: khu vực login */
+.right {
+  width: 45%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #e6fbff;
+  animation: slideRight 0.8s ease;
+}
+
+/* Hộp login */
+.login-box {
+  width: 360px;
+  padding: 30px;
+  background: #ffffff;
+  border-radius: 18px;
+  box-shadow: 0 10px 35px rgba(0,0,0,0.12);
+  text-align: center;
+}
+
+/* Logo */
+.login-logo {
+  width: 120px;
+  margin: 0 auto 15px;
+}
+
+/* Tiêu đề */
+.login-box h2 {
+  color: #27ae60;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+/* Input */
+.input {
+  width: 100%;
+  padding: 13px;
+  margin-bottom: 15px;
+  border-radius: 10px;
+  border: 2px solid #dcdcdc;
+  font-size: 15px;
+  transition: .25s;
+}
+
+.input:focus {
+  border-color: #27ae60;
+  outline: none;
+  box-shadow: 0 0 6px rgba(39,174,96,0.2);
+}
+
+/* Nút đăng nhập */
+.save {
+  width: 100%;
+  padding: 13px;
+  background: #27ae60;
+  border: none;
+  border-radius: 10px;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: .25s;
+}
+
+.save:hover { background: #219150; }
+.save:active { transform: scale(0.97); }
+
+/* Thông báo lỗi */
+#error {
+  margin-top: 10px;
+  font-size: 14px;
+  color: red;
+}
+
+/* Animation */
+@keyframes slideLeft {
+  from { transform: translateX(-80px); opacity: 0; }
+  to   { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideRight {
+  from { transform: translateX(80px); opacity: 0; }
+  to   { transform: translateX(0); opacity: 1; }
+}
