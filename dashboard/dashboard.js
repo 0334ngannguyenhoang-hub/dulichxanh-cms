@@ -1,7 +1,7 @@
 // dashboard.js  (dùng as module)
-import { api } from "../shared/api.js"; // nếu api.js có helper, dùng; nếu không, bỏ dòng này
+import { api } from "../shared/api.js";
 
-const API_BASE = "http://localhost:3000";
+const API_BASE = "https://dulichxanh-backend.onrender.com";
 
 document.addEventListener("DOMContentLoaded", () => {
   initDashboard();
@@ -9,38 +9,36 @@ document.addEventListener("DOMContentLoaded", () => {
 
 let allPosts = [];
 
-
+/* =========================
+      INIT DASHBOARD
+   ========================= */
 async function initDashboard() {
   const bulkBtn = document.getElementById("bulkUnpublish");
   bulkBtn.replaceWith(bulkBtn.cloneNode(true));
   document.getElementById("bulkUnpublish").onclick = bulkUnpublish;
 
   document.getElementById("bulkDelete").onclick = bulkDelete;
-  // kiểm tra token
+
   const token = localStorage.getItem("token");
   if (!token) {
     console.warn("Không tìm thấy token — hãy đăng nhập trước.");
-    // vẫn tiếp tục nhưng sẽ chỉ hiển thị rỗng / yêu cầu đăng nhập khi thao tác
   }
 
-  // gắn sự kiện đóng popup (nếu có)
   const closeBtn = document.querySelector("#viewPopup .popup-actions button");
   if (closeBtn) closeBtn.addEventListener("click", closeView);
 
   await loadAndRender();
 
   document.getElementById("filter-author").oninput = applyFilters;
-document.getElementById("filter-tag").oninput = applyFilters;
-document.getElementById("filter-category").onchange = applyFilters;
+  document.getElementById("filter-tag").oninput = applyFilters;
+  document.getElementById("filter-category").onchange = applyFilters;
 
-document.getElementById("clearFilters").onclick = () => {
-  document.getElementById("filter-author").value = "";
-  document.getElementById("filter-tag").value = "";
-  document.getElementById("filter-category").value = "";
-  applyFilters();
-};
-
-
+  document.getElementById("clearFilters").onclick = () => {
+    document.getElementById("filter-author").value = "";
+    document.getElementById("filter-tag").value = "";
+    document.getElementById("filter-category").value = "";
+    applyFilters();
+  };
 }
 
 /* =========================
@@ -54,9 +52,9 @@ async function loadAndRender() {
     const res = await fetch(`${API_BASE}/posts`, { headers });
     if (!res.ok) throw new Error("Lỗi khi tải bài từ server: " + res.status);
 
-    allPosts = await res.json();   // LƯU GLOBAL
-      renderStats(allPosts);
-      applyFilters();                // lọc trước khi render
+    allPosts = await res.json();
+    renderStats(allPosts);
+    applyFilters();
 
   } catch (err) {
     console.error(err);
@@ -84,24 +82,27 @@ function renderTable(posts = []) {
   const tbody = document.getElementById("postList");
   tbody.innerHTML = "";
 
-  // render newest first (server có thể đã sort nhưng safe)
-  posts.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
+  posts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
   posts.forEach(post => {
     const tr = document.createElement("tr");
-
     const categories = Array.isArray(post.category) ? post.category.join(", ") : "";
 
-  tr.innerHTML = `
+    tr.innerHTML = `
       <td><input type="checkbox" class="row-checkbox" data-id="${post._id}"></td>
       <td>${escapeHtml(post.title || "")}</td>
       <td>${escapeHtml(post.author || "")}</td>
       <td>${escapeHtml(categories)}</td>
-      <td><span class="status-${post.status}">${post.status === "draft" ? "Chờ duyệt" : "Đã đăng"}</span></td>
+      <td><span class="status-${post.status}">
+        ${post.status === "draft" ? "Chờ duyệt" : "Đã đăng"}</span></td>
       <td>${new Date(post.createdAt).toLocaleString()}</td>
       <td>
         <button class="btn-view" data-id="${post._id}">Xem</button>
-        ${post.status === "published" ? `<button class="btn-undo" data-id="${post._id}">Gỡ bài</button>` : `<button class="btn-publish" data-id="${post._id}">Duyệt</button>`}
+        ${
+          post.status === "published"
+            ? `<button class="btn-undo" data-id="${post._id}">Gỡ bài</button>`
+            : `<button class="btn-publish" data-id="${post._id}">Duyệt</button>`
+        }
         <button class="btn-delete" data-id="${post._id}">Xoá</button>
       </td>
     `;
@@ -109,7 +110,6 @@ function renderTable(posts = []) {
   });
 
   attachRowEvents();
-
 }
 
 /* =========================
@@ -121,64 +121,65 @@ function attachRowEvents() {
   );
 
   document.querySelectorAll("#postList .btn-delete").forEach(btn =>
-  btn.onclick = () => deletePost(btn.dataset.id)
-);
-
+    btn.onclick = () => deletePost(btn.dataset.id)
+  );
 
   document.querySelectorAll(".btn-publish").forEach(btn =>
     btn.addEventListener("click", () => publishPost(btn.dataset.id))
   );
 
-  document.querySelectorAll("#postList .btn-undo").forEach(btn =>
-  btn.onclick = () => unpublishPost(btn.dataset.id)
+  document.querySelectorAll(".btn-undo").forEach(btn =>
+    btn.onclick = () => unpublishPost(btn.dataset.id)
   );
-
 }
 
-  document.getElementById("selectAll").onclick = e => {
+document.getElementById("selectAll").onclick = e => {
   const checked = e.target.checked;
   document.querySelectorAll(".row-checkbox").forEach(cb => {
     cb.checked = checked;
   });
 };
 
-
 /* =========================
    VIEW POST (popup)
    ========================= */
 async function viewPost(id) {
   try {
-    // Lấy bài từ server (chi tiết)
     const token = localStorage.getItem("token");
     const res = await fetch(`${API_BASE}/posts/${id}`, {
       headers: token ? { Authorization: "Bearer " + token } : {}
     });
-    if (!res.ok) throw new Error("Không thể lấy bài: " + res.status);
-    const post = await res.json();
 
+    if (!res.ok) throw new Error("Không thể lấy bài: " + res.status);
+
+    const post = await res.json();
     document.getElementById("view-title").innerText = post.title || "";
     document.getElementById("view-author").innerText = post.author || "";
 
-   const contentBox = document.getElementById("article-content");
+    const contentBox = document.getElementById("article-content");
 
     if (post.type === "emagazine" && post.emagPage) {
       contentBox.innerHTML = `
-        <iframe src="${post.emagPage}" 
-                style="width:100%; height:80vh; border:none; border-radius:12px;"
-                allowfullscreen>
+        <iframe 
+          src="${post.emagPage}"
+          style="width:100%; height:80vh; border:none; border-radius:12px;"
+          allowfullscreen>
         </iframe>`;
     } else {
       contentBox.innerHTML = post.content || "";
     }
 
-
     document.getElementById("viewPopup").classList.remove("hidden");
+
   } catch (err) {
     console.error(err);
     alert("❌ Lỗi khi tải bài chi tiết.");
   }
 }
 
+/* =========================
+   CLOSE POPUP
+   ========================= */
 function closeView() {
   document.getElementById("viewPopup").classList.add("hidden");
   document.getElementById("article-content").innerHTML = "";
@@ -191,7 +192,6 @@ async function deletePost(id) {
   if (!confirm("Bạn chắc chắn muốn xoá bài này?")) return;
   try {
     const token = localStorage.getItem("token");
-    if (!token) return alert("Bạn cần đăng nhập để xoá bài.");
 
     const res = await fetch(`${API_BASE}/posts/${id}`, {
       method: "DELETE",
@@ -199,7 +199,7 @@ async function deletePost(id) {
     });
 
     if (!res.ok) {
-      const err = await res.json().catch(()=>({error:res.status}));
+      const err = await res.json().catch(() => ({ error: res.status }));
       throw new Error(err.error || res.status);
     }
 
@@ -213,9 +213,9 @@ async function deletePost(id) {
 
 async function publishPost(id) {
   if (!confirm("Duyệt và xuất bản bài này?")) return;
+
   try {
     const token = localStorage.getItem("token");
-    if (!token) return alert("Bạn cần đăng nhập với vai trò editor/admin.");
 
     const res = await fetch(`${API_BASE}/posts/${id}/publish`, {
       method: "PATCH",
@@ -223,12 +223,13 @@ async function publishPost(id) {
     });
 
     if (!res.ok) {
-      const err = await res.json().catch(()=>({error:res.status}));
+      const err = await res.json().catch(() => ({ error: res.status }));
       throw new Error(err.error || res.status);
     }
 
     alert("✔ Bài đã được duyệt!");
     await loadAndRender();
+
   } catch (err) {
     console.error(err);
     alert("❌ Duyệt thất bại: " + (err.message || err));
@@ -237,9 +238,9 @@ async function publishPost(id) {
 
 async function unpublishPost(id) {
   if (!confirm("Gỡ bài về nháp?")) return;
+
   try {
     const token = localStorage.getItem("token");
-    if (!token) return alert("Bạn cần đăng nhập với vai trò editor/admin.");
 
     const res = await fetch(`${API_BASE}/posts/${id}/unpublish`, {
       method: "PATCH",
@@ -247,12 +248,13 @@ async function unpublishPost(id) {
     });
 
     if (!res.ok) {
-      const err = await res.json().catch(()=>({error:res.status}));
+      const err = await res.json().catch(() => ({ error: res.status }));
       throw new Error(err.error || res.status);
     }
 
     alert("✔ Bài đã được gỡ về nháp!");
     await loadAndRender();
+
   } catch (err) {
     console.error(err);
     alert("❌ Gỡ bài thất bại: " + (err.message || err));
@@ -271,6 +273,7 @@ function escapeHtml(str) {
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
 }
+
 function getSelectedIds() {
   return Array.from(document.querySelectorAll(".row-checkbox:checked"))
     .map(cb => cb.dataset.id)
@@ -311,18 +314,16 @@ async function bulkUnpublish() {
   await loadAndRender();
 }
 
-
-
-/* ====== backward-compat: nếu HTML vẫn dùng inline onclick (không khuyến nghị), expose global functions ====== */
+/* Expose global nếu cần */
 window.viewPost = viewPost;
 window.closeView = closeView;
 window.deletePost = deletePost;
 window.publishPost = publishPost;
 window.unpublishPost = unpublishPost;
 
-
-
-
+/* =========================
+   FILTER
+   ========================= */
 function applyFilters() {
   let filtered = [...allPosts];
 
@@ -330,19 +331,16 @@ function applyFilters() {
   const tag = document.getElementById("filter-tag").value.trim().toLowerCase();
   const cat = document.getElementById("filter-category").value;
 
-  // Lọc theo tác giả
   if (author)
     filtered = filtered.filter(p =>
       (p.author || "").toLowerCase().includes(author)
     );
 
-  // Lọc theo hashtag
   if (tag)
     filtered = filtered.filter(p =>
       (p.tags || "").toLowerCase().includes(tag)
     );
 
-  // Lọc theo chuyên mục
   if (cat)
     filtered = filtered.filter(p =>
       Array.isArray(p.category) && p.category.includes(cat)
@@ -350,5 +348,3 @@ function applyFilters() {
 
   renderTable(filtered);
 }
-
-
