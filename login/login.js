@@ -10,7 +10,7 @@ document.getElementById("btnLogin").addEventListener("click", async () => {
     localStorage.setItem("token", data.token);
     localStorage.setItem("user", JSON.stringify(data.user));
 
-    window.location.href = "../editor/editor.html";
+    window.location.href = "/editor/editor.html";
 
   } catch (err) {
     document.getElementById("error").innerText =
