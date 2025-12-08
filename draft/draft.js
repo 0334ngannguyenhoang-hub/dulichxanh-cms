@@ -1,3 +1,5 @@
+const API_BASE = "https://dulichxanh-backend.onrender.com";
+
 import { api } from "../shared/api.js";
 import { Editor } from "@tiptap/core";
 import StarterKit from "@tiptap/starter-kit";
@@ -8,19 +10,16 @@ import Youtube from "@tiptap/extension-youtube";
 import TextAlign from "@tiptap/extension-text-align";
 import Blockquote from "@tiptap/extension-blockquote";
 
-
 let allDrafts = [];
 let currentEditId = null;
 let editor = null;
-
-
 
 /* ============================================================
    LOAD FROM BACKEND
 ============================================================ */
 document.addEventListener("DOMContentLoaded", async () => {
   try {
-    const res = await fetch("http://localhost:3000/posts?status=draft", {
+    const res = await fetch(`${API_BASE}/posts?status=draft`, {
       headers: { "Authorization": "Bearer " + localStorage.getItem("token") }
     });
 
@@ -34,7 +33,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 /* ============================================================
-   RENDER TABLE (KHÔNG CÓ NÚT XEM)
+   RENDER TABLE
 ============================================================ */
 function renderList() {
   const tbody = document.getElementById("draftList");
@@ -64,9 +63,7 @@ function renderList() {
 
 document.getElementById("selectAllDraft").onclick = (e) => {
   const checked = e.target.checked;
-  document.querySelectorAll(".draft-checkbox").forEach(cb => {
-    cb.checked = checked;
-  });
+  document.querySelectorAll(".draft-checkbox").forEach(cb => cb.checked = checked);
 };
 
 /* ============================================================
@@ -89,7 +86,7 @@ function attachRowEvents() {
 async function deletePost(id) {
   if (!confirm("Xoá bài này?")) return;
 
-  await fetch("http://localhost:3000/posts/" + id, {
+  await fetch(`${API_BASE}/posts/${id}`, {
     method: "DELETE",
     headers: { "Authorization": "Bearer " + localStorage.getItem("token") }
   });
@@ -102,7 +99,7 @@ async function deletePost(id) {
    PUBLISH
 ============================================================ */
 async function publishPost(id) {
-  await fetch(`http://localhost:3000/posts/${id}/publish`, {
+  await fetch(`${API_BASE}/posts/${id}/publish`, {
     method: "PATCH",
     headers: { "Authorization": "Bearer " + localStorage.getItem("token") }
   });
@@ -135,31 +132,17 @@ function openEdit(id) {
       element: document.getElementById("edit-editor"),
       content: post.content || "<p>(Trống)</p>",
       extensions: [
-        StarterKit.configure({
-          blockquote: false   // ❌ TẮT blockquote mặc định để tránh trùng
-        }),
-
+        StarterKit.configure({ blockquote: false }),
         Underline,
         Link.configure({ openOnClick: false }),
         TiptapImage,
-
-        Youtube.configure({
-          inline: false,
-          allowFullscreen: true
-        }),
-
-        TextAlign.configure({
-          types: ['heading', 'paragraph']
-        }),
-
-        Blockquote,  // ← Chỉ dùng blockquote này, không bị conflict
+        Youtube.configure({ inline: false, allowFullscreen: true }),
+        TextAlign.configure({ types: ['heading', 'paragraph'] }),
+        Blockquote
       ]
-
-
     });
 
     setupDraftToolbar(editor);
-
   }, 100);
 }
 
@@ -176,7 +159,7 @@ document.getElementById("btnSaveEdit").addEventListener("click", async () => {
     content: editor.getHTML()
   };
 
-  await fetch("http://localhost:3000/posts/" + currentEditId, {
+  await fetch(`${API_BASE}/posts/${currentEditId}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
@@ -190,7 +173,7 @@ document.getElementById("btnSaveEdit").addEventListener("click", async () => {
 });
 
 /* ============================================================
-   CLOSE POPUP (FIXED)
+   CLOSE POPUP
 ============================================================ */
 document.getElementById("btnCloseEdit").addEventListener("click", () => {
   document.getElementById("editPopup").classList.add("hidden");
@@ -217,11 +200,7 @@ function setupDraftToolbar(editor) {
         case "align-center": chain.setTextAlign("center").run(); break;
         case "align-right": chain.setTextAlign("right").run(); break;
         case "align-justify": chain.setTextAlign("justify").run(); break;
-
-        case "blockquote":
-        chain.toggleBlockquote().run();
-        break;
-
+        case "blockquote": chain.toggleBlockquote().run(); break;
 
         case "image":
           document.getElementById("draft-image-input").click();
@@ -229,8 +208,7 @@ function setupDraftToolbar(editor) {
 
         case "youtube":
           let link = prompt("Link YouTube?");
-          if (!link) return;
-          chain.setYoutubeVideo({ src: link }).run();
+          if (link) chain.setYoutubeVideo({ src: link }).run();
           break;
       }
     };
@@ -244,12 +222,15 @@ function setupDraftToolbar(editor) {
     const form = new FormData();
     form.append("image", f);
 
-    fetch("http://localhost:3000/upload", { method: "POST", body: form })
+    fetch(`${API_BASE}/upload`, { method: "POST", body: form })
       .then(res => res.json())
       .then(data => editor.commands.setImage({ src: data.url }));
   };
 }
 
+/* ============================================================
+   BULK ACTIONS
+============================================================ */
 function getSelectedDraftIds() {
   return Array.from(document.querySelectorAll(".draft-checkbox:checked"))
     .map(cb => cb.dataset.id);
@@ -262,11 +243,9 @@ document.getElementById("bulkPublishDraft").onclick = async () => {
   if (!confirm(`Duyệt ${ids.length} bài?`)) return;
 
   for (const id of ids) {
-    await fetch(`http://localhost:3000/posts/${id}/publish`, {
+    await fetch(`${API_BASE}/posts/${id}/publish`, {
       method: "PATCH",
-      headers: {
-        "Authorization": "Bearer " + localStorage.getItem("token")
-      }
+      headers: { "Authorization": "Bearer " + localStorage.getItem("token") }
     });
   }
 
@@ -281,11 +260,9 @@ document.getElementById("bulkDeleteDraft").onclick = async () => {
   if (!confirm(`Xoá ${ids.length} bài?`)) return;
 
   for (const id of ids) {
-    await fetch(`http://localhost:3000/posts/${id}`, {
+    await fetch(`${API_BASE}/posts/${id}`, {
       method: "DELETE",
-      headers: {
-        "Authorization": "Bearer " + localStorage.getItem("token")
-      }
+      headers: { "Authorization": "Bearer " + localStorage.getItem("token") }
     });
   }
 
@@ -304,21 +281,11 @@ function applyFilters() {
   let filtered = allDrafts.filter(post => {
     let ok = true;
 
-    // Lọc theo tác giả
-    if (author && !(post.author || "").toLowerCase().includes(author)) {
-      ok = false;
-    }
+    if (author && !(post.author || "").toLowerCase().includes(author)) ok = false;
+    if (tag && !(post.tags || "").toLowerCase().includes(tag)) ok = false;
 
-    // Lọc theo hashtag
-    if (tag && !(post.tags || "").toLowerCase().includes(tag)) {
-      ok = false;
-    }
-
-    // Lọc theo chuyên mục (post.category là mảng!)
     if (category && Array.isArray(post.category)) {
-      if (!post.category.includes(category)) {
-        ok = false;
-      }
+      if (!post.category.includes(category)) ok = false;
     }
 
     return ok;
@@ -328,7 +295,7 @@ function applyFilters() {
 }
 
 /* ============================================================
-   RENDER LIST SAU KHI LỌC
+   RENDER FILTERED LIST
 ============================================================ */
 function renderFilteredList(list) {
   const tbody = document.getElementById("draftList");
@@ -357,16 +324,15 @@ function renderFilteredList(list) {
 }
 
 /* ============================================================
-   EVENT LISTENERS FOR FILTERS
+   RESET FILTERS
 ============================================================ */
 document.getElementById("filter-author").addEventListener("input", applyFilters);
 document.getElementById("filter-tag").addEventListener("input", applyFilters);
 document.getElementById("filter-category").addEventListener("change", applyFilters);
 
-// Reset lọc
 document.getElementById("clearFilters").addEventListener("click", () => {
   document.getElementById("filter-author").value = "";
   document.getElementById("filter-tag").value = "";
   document.getElementById("filter-category").value = "";
-  renderList();   // Trả về mọi bài nháp
+  renderList();
 });

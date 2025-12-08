@@ -9,6 +9,8 @@ import Underline from "https://esm.sh/@tiptap/extension-underline@2.3.2";
 
 import { api } from "../shared/api.js";
 
+const API_BASE = "https://dulichxanh-backend.onrender.com";
+
 document.addEventListener("DOMContentLoaded", () => {
 
   /* ============================================================
@@ -34,12 +36,13 @@ document.addEventListener("DOMContentLoaded", () => {
       Image,
       Youtube.configure({ width: 640, height: 360 }),
       TextAlign.configure({ types: ["heading", "paragraph"] }),
+      Blockquote
     ],
     content: `<p>Nhập nội dung bài viết tại đây...</p>`
   });
 
   /* ============================================================
-      WRAP ELEMENTS FOR PREVIEW
+      WRAP IMAGES & VIDEOS
   ============================================================ */
   function wrapImages(root) {
     root.querySelectorAll("img").forEach(img => {
@@ -130,7 +133,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   /* ============================================================
-      EDITOR IMAGE UPLOAD
+      IMAGE UPLOAD (FIXED FOR RENDER)
   ============================================================ */
   const imageInput = document.getElementById("imageInput");
   if (imageInput) {
@@ -141,7 +144,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const form = new FormData();
       form.append("image", f);
 
-      fetch("http://localhost:3000/upload", {
+      fetch(`${API_BASE}/upload`, {
         method: "POST",
         body: form
       })
@@ -174,21 +177,18 @@ document.addEventListener("DOMContentLoaded", () => {
     thumbPreview.style.display = thumb ? "block" : "none";
     thumbPreview.src = thumb || "";
 
-    // Check if emagazine selected
     const isEmag = Array.from(document.querySelectorAll(".cat-list input:checked"))
       .map(c => c.value)
       .includes("emagazine");
 
-      // Hiển thị hoặc ẩn ô nhập link Canva
-      if (isEmag) {
-        document.getElementById("emagazineBox").style.display = "block";
-      } else {
-        document.getElementById("emagazineBox").style.display = "none";
-      }
-
+    // Show/Hide emagazine input
+    if (isEmag) {
+      document.getElementById("emagazineBox").style.display = "block";
+    } else {
+      document.getElementById("emagazineBox").style.display = "none";
+    }
 
     if (isEmag) {
-      // hide editor area for preview clarity (optional)
       document.getElementById("editor").style.display = "none";
       document.querySelector(".toolbar").style.display = "none";
 
@@ -205,12 +205,10 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       return;
     } else {
-      // show editor (normal)
       document.getElementById("editor").style.display = "block";
       document.querySelector(".toolbar").style.display = "flex";
     }
 
-    /* ========== PREVIEW BÀI VIẾT THƯỜNG ========== */
     const temp = document.createElement("div");
     temp.innerHTML = editor.getHTML();
     wrapImages(temp);
@@ -246,13 +244,13 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   ["title", "sapo", "author", "thumbnail", "emagPage"].forEach(id => {
-  document.querySelectorAll(".cat-list input").forEach(chk => {
-  chk.addEventListener("change", updatePreview);
-});
-
     const el = document.getElementById(id);
     if (el) el.addEventListener("input", updatePreview);
   });
+
+  document.querySelectorAll(".cat-list input").forEach(chk =>
+    chk.addEventListener("change", updatePreview)
+  );
 
   /* ============================================================
       THUMBNAIL UPLOAD
@@ -266,7 +264,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const form = new FormData();
       form.append("image", f);
 
-      fetch("http://localhost:3000/upload", {
+      fetch(`${API_BASE}/upload`, {
         method: "POST",
         body: form
       })
@@ -282,17 +280,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   /* ============================================================
-      STRIP FIGURE BEFORE SAVE
-  ============================================================ */
-  function stripFigure(html) {
-    const temp = document.createElement("div");
-    temp.innerHTML = html;
-    temp.querySelectorAll("figcaption").forEach(cap => cap.remove());
-    return temp.innerHTML;
-  }
-
-  /* ============================================================
-      SAVE POST
+      SAVE POST – FIX URL FOR RENDER
   ============================================================ */
   document.getElementById("saveBtn").addEventListener("click", async () => {
 
@@ -307,13 +295,6 @@ document.addEventListener("DOMContentLoaded", () => {
     let missing = [];
 
     const isEmag = categories.map(c => c.value).includes("emagazine");
-    // Hiển thị ô nhập link Canva khi chọn E-magazine
-      if (isEmag) {
-        document.getElementById("emagazineBox").style.display = "block";
-      } else {
-        document.getElementById("emagazineBox").style.display = "none";
-      }
-
     const emagPage = document.getElementById("emagPage").value.trim();
 
     if (isEmag) {
@@ -343,13 +324,13 @@ document.addEventListener("DOMContentLoaded", () => {
       thumbnail,
       type: isEmag ? "emagazine" : "normal",
       emagPage: isEmag ? emagPage : "",
-      content: isEmag ? "" : stripFigure(editor.getHTML()),
+      content: isEmag ? "" : editor.getHTML(),
       createdAt: new Date().toISOString(),
       status: "draft"
     };
 
     try {
-      const res = await fetch("http://localhost:3000/posts", {
+      const res = await fetch(`${API_BASE}/posts`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
