@@ -226,6 +226,48 @@ function setupDraftToolbar(editor) {
       .then(res => res.json())
       .then(data => editor.commands.setImage({ src: data.url }));
   };
+
+  /* ============================================================
+   UPLOAD THUMBNAIL (Cloudinary)
+============================================================ */
+const editThumbBtn = document.getElementById("edit-thumb-upload");
+const editThumbInput = document.getElementById("edit-thumb-input");
+
+if (editThumbBtn && editThumbInput) {
+  editThumbBtn.onclick = () => editThumbInput.click();
+
+  editThumbInput.onchange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const form = new FormData();
+    form.append("image", file);
+
+    try {
+      const res = await fetch("https://dulichxanh-backend.onrender.com/upload", {
+        method: "POST",
+        body: form
+      });
+
+      const data = await res.json();
+
+      if (!data.url) {
+        alert("❌ Upload thất bại!");
+        return;
+      }
+
+      document.getElementById("edit-thumbnail").value = data.url;
+      alert("✔ Ảnh thumbnail đã tải lên!");
+
+    } catch (err) {
+      console.error("Thumbnail upload error:", err);
+      alert("❌ Không thể upload ảnh!");
+    }
+
+    editThumbInput.value = "";
+  };
+}
+
 }
 
 /* ============================================================
